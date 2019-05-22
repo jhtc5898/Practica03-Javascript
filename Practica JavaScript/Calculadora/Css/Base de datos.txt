@@ -1,0 +1,179 @@
+CREATE TABLE `MARKET` (
+    `ma_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `ma_nombre` varchar(100) NOT NULL,
+    `ma_acerca` varchar(2000) NOT NULL,
+    `ma_telefono1` int(10) NOT NULL,
+    `ma_telefono2` int(10) NOT NULL,
+    `ma_direccion` varchar(100) NOT NULL,
+    `ma_correo` varchar(50) NOT NULL,
+    `ma_wpp` int(10) NOT NULL,
+    PRIMARY KEY (`ma_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `USUARIO` (
+    `us_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `ma_codigo` int(11) NOT NULL,
+    `us_nombres` varchar(50) NOT NULL,
+    `us_apellidos` varchar(50) NOT NULL,
+    `us_cedula` varchar(10),
+    `us_nick` varchar(15),
+    `us_direccion` varchar(100),
+    `us_correo` varchar(50) NOT NULL,
+    `us_contrasena` varchar(255) NOT NULL,
+    `us_imagen` blob NOT NULL,
+    `us_fecha_nacimiento` date,
+    `us_eliminado` varchar(1) NOT NULL,
+    `us_fecha_creacion` date NOT NULL,
+    `us_sexo` varchar(9),
+    PRIMARY KEY (`us_codigo`),
+    UNIQUE KEY `us_cedula` (`us_cedula`),
+    FOREIGN KEY (`ma_codigo`) REFERENCES market(`ma_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `SUCURSAL` (
+    `su_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `ma_codigo` int(11) NOT NULL,
+    `su_nombre` varchar(50) NOT NULL,
+    `su_direccion` varchar(100),
+    `su_telefono` int(10) NOT NULL,
+    `su_ruc` int(13) NOT NULL,
+    `su_imagen` blob NOT NULL,
+    `su_fecha_creacion` date NOT NULL,
+    PRIMARY KEY (`su_codigo`),
+    UNIQUE KEY `su_ruc` (`su_ruc`),
+    FOREIGN KEY (`ma_codigo`) REFERENCES market(`ma_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `ADMINISTRADOR` (
+    `ad_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `su_codigo` int(11) NOT NULL,
+    `ad_nombres` varchar(50) NOT NULL,
+    `ad_apellidos` varchar(50) NOT NULL,
+    `ad_cedula` varchar(10),
+    `ad_direccion` varchar(100),
+    `ad_telefono1` int(10) NOT NULL,
+    `ad_telefono2` int(10) NOT NULL,
+    `ad_correo` varchar(50) NOT NULL,
+    `ad_contrasena` varchar(255) NOT NULL,
+    `ad_imagen` blob NOT NULL,
+    `ad_cargo` varchar(50) NOT NULL,
+    `us_fecha_nacimiento` date,
+    `us_fecha_modificacion` date NOT NULL,
+    `us_sexo` varchar(9),
+    PRIMARY KEY (`ad_codigo`),
+    UNIQUE KEY `us_cedula` (`ad_cedula`),
+    FOREIGN KEY (`su_codigo`) REFERENCES sucursal(`su_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `PREGUNTA` (
+    `pg_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `ma_codigo` int(11) NOT NULL,
+    `us_codigo` int(11),
+    `pg_usuario_pregunta` varchar(300) NOT NULL,
+    `pg_market_respuesta` varchar(300) NOT NULL,
+    PRIMARY KEY (`pg_codigo`),
+    FOREIGN KEY (`ma_codigo`) REFERENCES market(`ma_codigo`),
+    FOREIGN KEY (`us_codigo`) REFERENCES usuario(`us_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `CATEGORIA` (
+    `ca_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `ca_nombre` varchar(100) NOT NULL,
+    `ca_descripcion` varchar(300) NOT NULL,
+    `ca_imagen` blob NOT NULL,
+    `ca_fecha_modificacion` date NOT NULL,
+    PRIMARY KEY (`ca_codigo`),
+    UNIQUE KEY `ca_nombre` (`ca_nombre`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `SUCURSAL-CATEGORIA` (
+    `sc_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `su_codigo` int(11) NOT NULL,
+    `ca_codigo` int(11) NOT NULL,
+    PRIMARY KEY (`sc_codigo`),
+    FOREIGN KEY (`su_codigo`) REFERENCES sucursal(`su_codigo`),
+    FOREIGN KEY (`ca_codigo`) REFERENCES categoria(`ca_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `SUBCATEGORIA` (
+    `sb_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `ca_codigo` int(11) NOT NULL,
+    `sb_nombre` varchar(100) NOT NULL,
+    PRIMARY KEY (`sb_codigo`),
+    FOREIGN KEY (`ca_codigo`) REFERENCES categoria(`ca_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `PRODUCTO` (
+    `pr_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `sb_codigo` int(11) NOT NULL,
+    `pr_nombre` varchar(100) NOT NULL,
+    `pr_descripcion` varchar(300) NOT NULL,
+    `pr_precio` decimal(3,2) NOT NULL,
+    `pr_unidad` varchar(9) NOT NULL,
+    `pr_imagen` blob NOT NULL,
+    `pr_stock` int(5) NOT NULL,
+    `pr_oferta` int(2) NOT NULL DEFAULT 0,
+    `pr_nivel_azucar` varchar(5),
+    `pr_nivel_grasa` varchar(5),
+    `pr_nivel_sal` varchar(5),
+    PRIMARY KEY (`pr_codigo`),
+    FOREIGN KEY (`sb_codigo`) REFERENCES subcategoria(`sb_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `PROMOCION` (
+    `pm_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `ca_codigo` int(11) NOT NULL,
+    `pm_porcentaje` int(2) NOT NULL,
+    `pm_dia` int(1) NOT NULL COMMENT 'Del día de la semana, desde 1 (lunes) hasta 7 (domingo)',
+    `pm_descripcion` varchar(300) NOT NULL,
+    `pm_imagen` mediumblob NOT NULL,
+    PRIMARY KEY (`pm_codigo`),
+    FOREIGN KEY (`ca_codigo`) REFERENCES categoria(`ca_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `FACTURA-CABECERA` (
+    `fc_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `us_codigo` int(11) NOT NULL,
+    `fc_fecha_emision` date NOT NULL,
+    `fc_iva` int(2) NOT NULL,
+    `fc_envio` decimal(2,2) NOT NULL,
+    `fc_subtotal` decimal(4,2) NOT NULL,
+    `fc_total` decimal(4,2) NOT NULL,
+    PRIMARY KEY (`fc_codigo`),
+    FOREIGN KEY (`us_codigo`) REFERENCES usuario(`us_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `FACTURA` (
+    `fa_codigo` int(11) NOT NULL AUTO_INCREMENT,
+    `pr_codigo` int(11) NOT NULL,
+    `fc_codigo` int(11) NOT NULL,
+    `fa_cantidad` int(3) NOT NULL,
+    `fa_subtotal` decimal(3,2) NOT NULL,
+    PRIMARY KEY (`fa_codigo`),
+    FOREIGN KEY (`pr_codigo`) REFERENCES producto(`pr_codigo`),
+    FOREIGN KEY (`fc_codigo`) REFERENCES factura-cabecera(`fc_codigo`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
