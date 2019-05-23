@@ -87,10 +87,10 @@ function validarnumeros(elemento)
 }
 
 
+
 var aux3 =0
 function validartelefono(elemento)    
 {
-
     if (elemento.value.length > 0)
     
     var miAscii = elemento.value.charCodeAt(elemento.value.length-1)
